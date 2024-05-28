@@ -1,14 +1,14 @@
 import tkinter as tk
-from tkinter import ttk
 from tkinter import messagebox
 from calculator import Calculator
-
+from style_templates import Button1, Label1, Entry1
 
 class App(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master.geometry("250x50")
         self.master.title("Home")
+        self.master.configure(background="#ffffff")
         self.frame_NPV = tk.Frame()
         # self.years_entry_field = self.make_NPV_calulator()
         self.make_get_NPV_entry_field_button()
@@ -20,16 +20,16 @@ class App(tk.Frame):
 
     def make_NPV_calulator(self):
         # NPV
-        NPV_label = tk.Label(master=self.frame_NPV, text="NPV Calculator")
+        NPV_label = Label1(master=self.frame_NPV, text="NPV Calculator")
         NPV_label.pack()
-        # NPV_label1 = tk.Label(master=self.frame_NPV, text="Enter time (in years)")
+        # NPV_label1 = Label1(master=self.frame_NPV, text="Enter time (in years)")
         # NPV_label1.pack()
-        # years_NPV = tk.Entry(master=self.frame_NPV, bg="grey", width=50)
+        # years_NPV = Entry1(master=self.frame_NPV, bg="grey", width=50)
         # years_NPV.pack()
 
 
     def make_get_NPV_entry_field_button(self):
-        npv_calc_button = tk.Button(master=self.frame_NPV, bg="green", text="Calc new NPV",width=10,height=1,command=lambda: self.calc_new_NPV())
+        npv_calc_button = Button1(master=self.frame_NPV, text="Calc new NPV", width=20, height=3,command=lambda: self.calc_new_NPV())
         npv_calc_button.pack()
 
 
@@ -43,21 +43,22 @@ class App(tk.Frame):
 
     def create_NPV_window(self):
         self.npv_window = tk.Toplevel(self)
+        self.npv_window.configure(background="#abc8f5")
         self.npv_window.geometry("500x800")
         self.npv_window.title("NPV Calculator")
         self.frame_results = tk.Frame(self.npv_window)
 
-        self.profits_entry_field_label = tk.Label(self.npv_window, text="Enter Benefit Values for each year (seperated by space)")
-        self.profits_entry_field = tk.Entry(self.npv_window, bg="grey", width=50)
-        self.costs_entry_field_label= tk.Label(self.npv_window, text="Enter Losses Values for each year (seperated by space)")
-        self.costs_entry_field = tk.Entry(self.npv_window, bg="grey", width=50)
-        self.initial_costs_entry_label = tk.Label(self.npv_window, text="Enter Inital Costs (one value)")
-        self.initial_costs_entry_field = tk.Entry(self.npv_window, bg="grey", width=50)
-        self.discount_rate_entry_field_label = tk.Label(self.npv_window, text="Enter Discount Rate (in percent)")
-        self.discount_rate_entry_field = tk.Entry(self.npv_window, bg="grey", width=50)
+        self.profits_entry_field_label = Label1(self.npv_window, text="Enter Benefit Values for each year (seperated by space)")
+        self.profits_entry_field = Entry1(self.npv_window )
+        self.costs_entry_field_label= Label1(self.npv_window, text="Enter Losses Values for each year (seperated by space)")
+        self.costs_entry_field = Entry1(self.npv_window)
+        self.initial_costs_entry_label = Label1(self.npv_window, text="Enter Inital Costs (one value)")
+        self.initial_costs_entry_field = Entry1(self.npv_window)
+        self.discount_rate_entry_field_label = Label1(self.npv_window, text="Enter Discount Rate (in percent)")
+        self.discount_rate_entry_field = Entry1(self.npv_window)
 
         # frame_results.destroy()
-        make_calc_NPV_button = tk.Button(self.npv_window, bg="green", text="Calc NPV",width=8,height=1,command=lambda: self.get_profit_costs(self.npv_window))
+        make_calc_NPV_button = Button1(self.npv_window, text="Calc NPV", command=lambda: self.get_profit_costs(self.npv_window))
 
         self.profits_entry_field_label.pack()
         self.profits_entry_field.pack()
@@ -98,7 +99,7 @@ class App(tk.Frame):
         if(self.input_checker(profits, costs, initial_costs, discount_rates)):
             calculator = Calculator(profits, costs,initial_costs, discount_rates)
 
-            net_benefits = tk.Label(self.frame_results, text="Net Benefits: " + str(calculator.net_benefits))
+            net_benefits = Label1(self.frame_results, text="Net Benefits: " + str(calculator.net_benefits))
             net_benefits.pack()
 
             ratio = calculator.benefits_costs_ratio
@@ -110,16 +111,19 @@ class App(tk.Frame):
             else:
                 text += """Benefit cost ratio is greater than 1, this project is worth investing in. Great success"""
 
-            benefits_cost_ratio = tk.Label(self.frame_results, text=text)
+            benefits_cost_ratio = Label1(self.frame_results, height=2, text=text)
             benefits_cost_ratio.pack()
 
-            pay_back_time = tk.Label(self.frame_results, text="Pay Back Time (avg): " + str(calculator.pay_back_time_avg) + " time steps")
+            pay_back_time = Label1(self.frame_results, text="Pay Back Time (avg): " + str(calculator.pay_back_time_avg) + " time steps")
             pay_back_time.pack()
 
-            NPV = tk.Label(self.frame_results, text="NPV: " + str(calculator.NPV))
+            NPV = Label1(self.frame_results, text="NPV (without inital costs): " + str(calculator.NPV))
             NPV.pack()
 
-            IRR = tk.Label(self.frame_results, text="IRR: " + str(calculator.calc_IRR()))
+            NPV_initial_costs = Label1(self.frame_results, text="NPV with inital costs: " + str(calculator.NPV_with_initial_costs))
+            NPV_initial_costs.pack()
+
+            IRR = Label1(self.frame_results, text="IRR: " + str(calculator.irr_value)+ "%")
             IRR.pack()
 
             self.frame_results.pack()
@@ -152,8 +156,8 @@ class App(tk.Frame):
             tk.messagebox.showwarning("Error", "Initial costs must be a number")
             return False
 
-        if(len(benefits) != len(costs) or len(benefits) != len(discount_rates)):
-            tk.messagebox.showwarning("Error", "Number of benefits, costs and discount rates must be equal")
+        if(len(benefits) != len(costs) or (len(benefits) != len(discount_rates) and len(discount_rates) != 1)):
+            tk.messagebox.showwarning("Error", "Number of benefits, costs and discount rates must be equal (Exception: discount rate can also be one value)")
             return False
 
         return True

@@ -1,10 +1,12 @@
 from sympy.solvers import solve
 from sympy import symbols
+import numpy_financial as npf
 class Calculator():
     def __init__(self,benefits, costs, initial_project_costs, discount_rates):
         self.benefits = benefits
         self.costs = costs
         self.discount_rates = discount_rates
+        self.make_discount_rate()
         self.initial_project_costs = initial_project_costs
         # convert all values to float
         self.to_float()
@@ -20,12 +22,17 @@ class Calculator():
         self.calc_NPV()
         self.calc_IRR()
 
+        self.NPV_with_initial_costs = self.NPV - self.initial_project_costs
 
+    def make_discount_rate(self):
+        if len(self.discount_rates) == 1:
+            self.discount_rates = [self.discount_rates[0] for i in range(len(self.benefits))]
+            print(self.discount_rates)
     def to_float(self):
         for idx in range(len(self.benefits)):
             self.benefits[idx] = float(self.benefits[idx])
             self.costs[idx] = float(self.costs[idx])
-            self.discount_rates[idx] = float(self.discount_rates[idx])
+            self.discount_rates[idx] = float(self.discount_rates[idx])/100
         self.initial_project_costs = float(self.initial_project_costs)
     def calc_benefit_cost_ratio(self, benefits, costs):
         tot_benefit = 0
@@ -69,10 +76,8 @@ class Calculator():
 
     # implementation might be incorrect
     def calc_IRR(self):
-        rate = symbols('rate', real = True)
-        npv_equation = self.NPV_for_IRR(rate)
-        self.irr_value = solve(npv_equation, rate)
-
+        all_costs = [-self.initial_project_costs]+self.net_benefits
+        self.irr_value = npf.irr(all_costs)*100
 
 
 
